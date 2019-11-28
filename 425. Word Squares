@@ -1,0 +1,76 @@
+class Solution {
+    class Node {
+        Node[] arr;
+        boolean isEnd;
+        String str;
+        public Node() {
+            this.arr = new Node[26];
+            this.isEnd = false;
+            this.str = null;
+        }
+    }
+    
+    private void add (Node root, String s) {
+        Node cur = root;
+        for(char c : s.toCharArray()) {
+            if(cur.arr[c-'a'] == null)
+                cur.arr[c-'a'] = new Node();
+            cur = cur.arr[c-'a'];
+        }
+        cur.isEnd = true;
+        cur.str = s;
+    }
+    
+    private List<String> search(Node root, String prefix) {
+        List<String> res = new ArrayList<>();
+        Node cur = root;
+        for(char c : prefix.toCharArray()) {
+            cur = cur.arr[c - 'a'];
+            if(cur == null) return res;
+        }
+        dfs(cur, res);
+        return res;
+    }
+    
+    private void dfs(Node root, List<String> list) {
+        for(Node n : root.arr) {
+            if(n != null && n.isEnd)
+                list.add(n.str);
+            if(n != null) dfs(n, list);
+        }
+        return;
+    }
+    
+    public List<List<String>> wordSquares(String[] words) {
+        List<List<String>> res = new ArrayList<>();
+        Node root = new Node();
+        for(String word : words) add(root, word);
+        for(String word : words) {
+            List<String> cur = new ArrayList<>();
+            cur.add(word);
+            helper(1, word.length(), cur, root, res);
+        }
+        
+        return res;
+    }
+    
+    private void helper(int k, int maxLen, List<String> cur, Node root, 
+                                    List<List<String>> res) {
+        if(k == maxLen) {
+            res.add(cur);
+            return;
+        }
+        String prefix = "";
+        for(String s : cur) {
+            prefix += s.charAt(k);
+        }
+        
+        List<String> candidates = search(root, prefix);
+        for(String candidate : candidates) {
+            List<String> cur_next = new ArrayList<>(cur);
+            cur_next.add(candidate);
+            helper(k+1, maxLen, cur_next, root, res);
+        }
+        return;
+    }
+}
